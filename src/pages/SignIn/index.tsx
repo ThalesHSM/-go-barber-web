@@ -5,7 +5,7 @@ import { FormHandles } from "@unform/core";
 import * as Yup from "yup";
 
 import getValidationErrors from "../../util/getValidationErrors";
-import AuthContext from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 import logo from "../../assets/logo.svg";
 
@@ -16,7 +16,6 @@ import { Container, Content, Background } from "./styles";
 
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-
   const handleSubmit = useCallback(async (data: object) => {
     try {
       formRef.current?.setErrors({});
@@ -43,7 +42,7 @@ const SignIn: React.FC = () => {
         <img src={logo} alt="GoBarber" />
 
         <Form ref={formRef} onSubmit={handleSubmit}>
-          <h1>Faça seu Logon</h1>
+          <h1>Faça seu Login</h1>
 
           <Input name="email" icon={FiMail} placeholder="E-mail" />
           <Input
