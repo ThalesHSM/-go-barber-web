@@ -5,7 +5,9 @@ import { FormHandles } from "@unform/core";
 import * as Yup from "yup";
 
 import getValidationErrors from "../../util/getValidationErrors";
+
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 
 import logo from "../../assets/logo.svg";
 
@@ -23,32 +25,42 @@ const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
   const { signIn } = useAuth();
+  const { addToast } = useToast();
 
-  const handleSubmit = useCallback(async (data: SignInFormData) => {
-    try {
-      formRef.current?.setErrors({});
+  const handleSubmit = useCallback(
+    async (data: SignInFormData) => {
+      try {
+        formRef.current?.setErrors({});
 
-      const schema = Yup.object().shape({
-        email: Yup.string()
-          .required("E-mail obrigatório")
-          .email("Digite um email válido"),
-        password: Yup.string().required("Senha obrigatória"),
-      });
-      await schema.validate(data, {
-        abortEarly: false,
-      });
+        const schema = Yup.object().shape({
+          email: Yup.string()
+            .required("E-mail obrigatório")
+            .email("Digite um email válido"),
+          password: Yup.string().required("Senha obrigatória"),
+        });
+        await schema.validate(data, {
+          abortEarly: false,
+        });
 
-      signIn({
-        email: data.email,
-        password: data.password,
-      });
-    } catch (err) {
-      console.log(err);
-      const errors = getValidationErrors(err);
+        await signIn({
+          email: data.email,
+          password: data.password,
+        });
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(err);
+          formRef.current?.setErrors(errors);
+        }
 
-      formRef.current?.setErrors(errors);
-    }
-  }, []);
+        addToast({
+          type: "error",
+          title: "Erro na autenticação",
+          description: "Ocorreu um erro ao fazer login. Cheque as credenciais",
+        });
+      }
+    },
+    [signIn, addToast]
+  );
   return (
     <Container>
       <Content>
